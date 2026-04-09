@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\DakFile;
 use App\Models\Department;
 use App\Models\FileMovement;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class DakController extends Controller
 {
     // 1. Load the Dashboard
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $departments = Department::all();
@@ -31,7 +32,9 @@ class DakController extends Controller
                 ->get()
                 ->keyBy('current_department_id');
                 
-            return view('dashboards.super_admin', compact('departments', 'allActiveFiles', 'departmentWorkloads'));
+            $pendingUsersCount = User::where('is_approved', false)->count();
+                
+            return view('dashboards.super_admin', compact('departments', 'allActiveFiles', 'departmentWorkloads', 'pendingUsersCount'));
         }
 
         // Admin (Department Head) Dashboard
@@ -48,9 +51,29 @@ class DakController extends Controller
         // Staff Dashboard
         if ($user->role === 'staff') {
             // স্টাফ শুধু তার নিজের তৈরি করা ফাইলগুলো দেখবে
-            $myEntries = DakFile::where('user_id', $user->id) // Note: ফাইলের মডেলে user_id (initiator) ট্র্যাকিং থাকতে হবে
-                ->orderBy('created_at', 'desc')
-                ->get();
+            $query = DakFile::where('user_id', $user->id); // Note: ফাইলের মডেলে user_id (initiator) ট্র্যাকিং থাকতে হবে
+            
+            // Search by Tracking ID
+            if ($request->filled('tracking_id')) {
+                $query->where('tracking_id', 'like', '%' . $request->tracking_id . '%');
+            }
+            
+            // Filter by exact date
+            if ($request->filled('date')) {
+                $query->whereDate('created_at', $request->date);
+            }
+            
+            // Filter by time range
+            if ($request->filled('start_time') && $request->filled('end_time')) {
+                $query->whereTime('created_at', '>=', $request->start_time)
+                      ->whereTime('created_at', '<=', $request->end_time);
+            } elseif ($request->filled('start_time')) {
+                $query->whereTime('created_at', '>=', $request->start_time);
+            } elseif ($request->filled('end_time')) {
+                $query->whereTime('created_at', '<=', $request->end_time);
+            }
+
+            $myEntries = $query->orderBy('created_at', 'desc')->get();
                 
             return view('dashboards.staff', compact('departments', 'myEntries'));
         }

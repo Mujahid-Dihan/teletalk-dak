@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin Routes
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
     Route::patch('/admin/users/{user}/approve', [UserController::class, 'approveUser'])->name('admin.users.approve');
     
     // Export Audit Log

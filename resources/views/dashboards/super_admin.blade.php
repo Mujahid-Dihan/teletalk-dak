@@ -16,38 +16,40 @@
             <h3 class="font-bold text-lg mb-4 text-gray-800">Global Tracker</h3>
             <div class="flex items-center space-x-2">
                 <input type="text" id="omni-search" placeholder="Enter Global Tracking ID to investigate file routing..." class="w-full text-xl p-4 border-2 border-gray-300 rounded focus:border-teletalk-green">
-                <button type="button" id="start-camera-btn" class="bg-gray-800 text-white px-6 py-4 rounded-lg hover:bg-gray-900 transition flex items-center justify-center font-bold text-lg whitespace-nowrap">
-                    📷 Camera
+                <button type="button" onclick="startCameraFor('omni-search')" class="scanner-btn-black w-20 h-20 rounded-[1.5rem] shadow-xl shrink-0 border-none outline-none group" title="Open QR Scanner">
+                    <svg viewBox="0 0 24 24" class="h-10 w-10 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M 4 8 V 4 h 4" />
+                        <path d="M 16 4 h 4 v 4" />
+                        <path d="M 4 16 v 4 h 4" />
+                        <path d="M 16 20 h 4 v -4" />
+                        <line x1="5" y1="12" x2="19" y2="12" class="animate-scanner-line" stroke="white" stroke-width="3" />
+                    </svg>
+                </button>
+                <button type="button" onclick="triggerSearch(document.getElementById('omni-search').value.trim())" class="bg-teletalk-green text-white font-bold px-8 h-20 rounded-[1.5rem] hover:bg-green-800 transition shadow-xl text-xl shrink-0 border-none outline-none focus:ring-4 focus:ring-green-300">
+                    Search
                 </button>
             </div>
             
-            <div id="reader-container" class="relative w-full mt-4 hidden overflow-hidden rounded-lg border-4 border-gray-800 bg-black min-h-[300px]">
-                <div id="reader-placeholder" class="absolute inset-0 flex flex-col items-center justify-center z-10 pointer-events-none text-white">
-                    <svg class="animate-spin h-8 w-8 text-white mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                    <p class="font-bold animate-pulse text-lg tracking-wide">Initializing Camera System...</p>
-                    <p class="text-sm mt-1 text-gray-400">Please allow camera permissions if prompted</p>
+            <div id="search-results-container" class="hidden mt-4 bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-inner">
+                <div id="search-results"></div>
+                
+                <div class="flex justify-end mt-6 border-t border-gray-200 pt-4">
+                    <button onclick="const container = document.getElementById('search-results-container'); container.style.display = 'none'; container.classList.add('hidden')" 
+                            class="flex items-center px-4 py-2 bg-white border border-red-200 text-red-600 font-medium rounded hover:bg-red-50 transition shadow-sm">
+                        <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                        Close Results
+                    </button>
                 </div>
-                
-                <!-- Laser Line -->
-                <div id="scanner-laser" class="absolute left-0 top-0 w-full h-[3px] bg-teletalk-red shadow-[0_0_15px_4px_rgba(211,32,39,0.9)] z-20 pointer-events-none hidden"></div>
-                <!-- Scanning Frame brackets -->
-                <div class="absolute inset-4 border-2 border-dashed border-white/50 z-10 pointer-events-none hidden" id="scanner-frame"></div>
-                
-                <div id="reader" class="w-full"></div>
             </div>
-            <style>
-                @keyframes scanlaser { 0% { top: 0%; } 50% { top: 98%; } 100% { top: 0%; } }
-                .laser-active { display: block !important; animation: scanlaser 2s linear infinite; }
-            </style>
-            
-            <div id="search-results" class="hidden mt-4"></div>
         </div>
 
         <div class="bg-white shadow rounded-lg p-6">
              <h3 class="font-bold text-lg mb-4 text-gray-800">Live Organization Workload</h3>
              
-             <!-- Workload Slider -->
-             <div class="flex overflow-x-auto space-x-4 pb-4 snap-x">
+             <!-- Workload Grid (Vertical) -->
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                  @foreach($departments as $dept)
                      @php
                          $count = isset($departmentWorkloads[$dept->id]) ? $departmentWorkloads[$dept->id]->total : 0;
@@ -61,7 +63,7 @@
                              $textClass = 'text-teletalk-green';
                          }
                      @endphp
-                     <div class="min-w-[200px] flex-shrink-0 snap-start border rounded-lg p-4 shadow-sm {{ $bgClass }} transition hover:shadow-md">
+                     <div class="border rounded-lg p-4 shadow-sm {{ $bgClass }} transition hover:shadow-md">
                          <h4 class="text-sm font-medium text-gray-600 truncate">{{ $dept->name }}</h4>
                          <div class="mt-2 flex items-baseline">
                              <span class="text-3xl font-bold {{ $textClass }}">{{ $count }}</span>
@@ -72,77 +74,31 @@
              </div>
         </div>
         
-        <div class="bg-white shadow rounded-lg p-6">
-             <h3 class="font-bold text-lg mb-4 text-gray-800">System Management</h3>
-             <div class="flex space-x-2">
-                 <a href="{{ route('admin.users.index') }}" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-black transition">
+        <div class="bg-white shadow rounded-lg p-8 flex flex-col items-center text-center">
+             <h3 class="font-bold text-2xl mb-6 text-gray-800">System Management</h3>
+             <div class="flex flex-wrap justify-center gap-4">
+                 <a href="{{ route('admin.users.index') }}" class="relative bg-gray-800 text-white px-8 py-3 rounded hover:bg-black transition font-bold shadow-lg">
                      Manage Users
+                     @if(isset($pendingUsersCount) && $pendingUsersCount > 0)
+                        <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-white animate-bounce">
+                            {{ $pendingUsersCount }}
+                        </span>
+                     @endif
                  </a>
-                 <a href="{{ route('admin.reports.index') }}" class="bg-teletalk-green text-white px-4 py-2 rounded hover:bg-green-800 transition">
+                 <a href="{{ route('admin.reports.index') }}" class="bg-teletalk-green text-white px-8 py-3 rounded hover:bg-green-800 transition font-bold shadow-lg">
                      View & Export Reports
                  </a>
              </div>
         </div>
     </div>
     
-    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('omni-search');
+            const resultsContainerWrapper = document.getElementById('search-results-container');
             const resultsContainer = document.getElementById('search-results');
-            
-            // Webcam Logic
-            let html5QrCode = null;
-            const startCamBtn = document.getElementById('start-camera-btn');
-            const readerContainer = document.getElementById('reader-container');
-            const placeholder = document.getElementById('reader-placeholder');
-            const laser = document.getElementById('scanner-laser');
-            const scannerFrame = document.getElementById('scanner-frame');
-            
-            if(startCamBtn && readerContainer) {
-                startCamBtn.addEventListener('click', () => {
-                    if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
-                    if (readerContainer.classList.contains('hidden')) {
-                        readerContainer.classList.remove('hidden');
-                        placeholder.classList.remove('hidden');
-                        laser.classList.remove('laser-active');
-                        scannerFrame.classList.add('hidden');
-                        startCamBtn.innerHTML = '🛑 Stop';
-                        
-                        html5QrCode.start(
-                            { facingMode: "environment" },
-                            { fps: 10, qrbox: { width: 250, height: 250 } },
-                            (decodedText) => {
-                                html5QrCode.stop().then(() => {
-                                    readerContainer.classList.add('hidden');
-                                    laser.classList.remove('laser-active');
-                                    scannerFrame.classList.add('hidden');
-                                    startCamBtn.innerHTML = '📷 Camera';
-                                    searchInput.value = decodedText;
-                                    triggerSearch(decodedText);
-                                });
-                            },
-                            (errorMessage) => { /* Ignore standard background errors */ }
-                        ).then(() => {
-                            placeholder.classList.add('hidden');
-                            laser.classList.add('laser-active');
-                            scannerFrame.classList.remove('hidden');
-                        }).catch(err => {
-                            console.log(err);
-                            placeholder.innerHTML = '<p class="text-teletalk-red font-bold text-xl">Camera Access Denied</p>';
-                        });
-                    } else {
-                        html5QrCode.stop().then(() => {
-                            readerContainer.classList.add('hidden');
-                            laser.classList.remove('laser-active');
-                            scannerFrame.classList.add('hidden');
-                            startCamBtn.innerHTML = '📷 Camera';
-                        }).catch(err => console.log("Failed to stop scanner", err));
-                    }
-                });
-            }
 
-            if(searchInput && resultsContainer) {
+            if(searchInput && resultsContainerWrapper) {
                 searchInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
@@ -153,14 +109,24 @@
             }
 
             function triggerSearch(query) {
-                if(query.length > 0) {
-                    fetch(`/dak/search?tracking_id=${query}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            resultsContainer.style.display = 'block';
-                            if(data.success) {
-                                let currLoc = data.file.current_department ? data.file.current_department.name : 'Unknown';
-                                let html = `
+                if(!query || query.length === 0) return;
+
+                resultsContainerWrapper.classList.remove('hidden');
+                resultsContainerWrapper.style.display = 'block';
+                resultsContainer.innerHTML = `
+                    <div class="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
+                        <svg class="animate-spin h-8 w-8 text-teletalk-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        <span class="ml-3 font-medium text-gray-500">Scanning Global Archive...</span>
+                    </div>
+                `;
+
+                fetch(`/dak/search?tracking_id=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success) {
+                            let currLoc = data.file.current_department ? data.file.current_department.name : 'Unknown';
+                            let html = `
+                                <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
                                     <div class="flex justify-between items-start border-b pb-4 mb-4">
                                         <div>
                                             <h4 class="font-bold text-2xl text-teletalk-green mb-1">${data.file.tracking_id}</h4>
@@ -170,48 +136,62 @@
                                                 <span class="px-2 py-1 rounded text-sm font-bold border ${data.file.priority === 'Urgent' ? 'bg-teletalk-red text-white' : 'bg-yellow-100 text-yellow-800'}">Priority: ${data.file.priority}</span>
                                             </div>
                                         </div>
-                                        <div class="text-right bg-white p-3 rounded shadow-sm border border-gray-200">
+                                        <div class="text-right bg-white p-3 rounded shadow-sm border border-gray-200 text-nowrap">
                                             <p class="text-sm text-gray-500 uppercase tracking-wide">Current Location</p>
                                             <p class="font-bold text-xl text-gray-900">${currLoc}</p>
                                         </div>
                                     </div>
-                                `;
-                                html += `<h5 class="font-bold text-gray-700 mb-4 uppercase text-sm tracking-widest">Movement History</h5>`;
-                                html += `<div class="space-y-4 border-l-2 border-teletalk-green ml-3 relative">`;
-                                data.file.movements.forEach((movement) => {
-                                    let date = new Date(movement.created_at).toLocaleString();
-                                    let destination = movement.to_department ? movement.to_department.name : 'System / Archival';
-                                    html += `
-                                        <div class="pl-6 relative">
-                                            <div class="absolute w-3 h-3 bg-teletalk-green rounded-full -left-[7px] top-1.5 border-2 border-white"></div>
-                                            <div class="bg-white p-3 rounded shadow-sm border border-gray-100">
-                                                <div class="flex justify-between text-sm mb-1">
-                                                    <span class="font-bold text-gray-900">${movement.action}</span>
-                                                    <span class="text-gray-500">${date}</span>
-                                                </div>
-                                                <p class="text-sm text-gray-700">Processed by <strong>${movement.user.name}</strong></p>
-                                                ${movement.action === 'Forwarded' ? `<p class="text-sm text-blue-600 font-medium mt-1">&rarr; Sent to ${destination}</p>` : ''}
-                                                ${movement.action === 'Completed' ? `<p class="text-sm text-gray-600 font-medium mt-1">&rarr; Locked at: ${data.file.physical_location}</p>` : ''}
-                                                ${movement.remarks ? `<div class="mt-2 p-2 bg-gray-50 text-sm italic text-gray-600 border-l-2 border-gray-300">"${movement.remarks}"</div>` : ''}
+                                    <h5 class="font-bold text-gray-700 mb-4 uppercase text-sm tracking-widest text-nowrap">Global Audit Trail</h5>
+                                    <div class="space-y-4 border-l-2 border-teletalk-green ml-3 relative">
+                            `;
+                            
+                            data.file.movements.forEach((movement) => {
+                                let date = new Date(movement.created_at).toLocaleString();
+                                let destination = movement.to_department ? movement.to_department.name : 'System / Archival';
+                                html += `
+                                    <div class="pl-6 relative">
+                                        <div class="absolute w-3 h-3 bg-teletalk-green rounded-full -left-[7px] top-1.5 border-2 border-white"></div>
+                                        <div class="bg-white p-3 rounded shadow-sm border border-gray-100">
+                                            <div class="flex justify-between text-sm mb-1">
+                                                <span class="font-bold text-gray-900">${movement.action}</span>
+                                                <span class="text-gray-500">${date}</span>
                                             </div>
+                                            <p class="text-sm text-gray-700">Processed by <strong>${movement.user ? movement.user.name : "System"}</strong></p>
+                                            ${movement.action === 'Forwarded' ? `<p class="text-sm text-blue-600 font-medium mt-1">&rarr; Sent to ${destination}</p>` : ''}
+                                            ${movement.action === 'Completed' ? `<p class="text-sm text-gray-600 font-medium mt-1">&rarr; Locked at: ${data.file.physical_location}</p>` : ''}
+                                            ${movement.remarks ? `<div class="mt-2 p-2 bg-gray-50 text-sm italic text-gray-600 border-l-2 border-gray-300">"${movement.remarks}"</div>` : ''}
                                         </div>
-                                    `;
-                                });
-                                html += `</div>`;
-                                resultsContainer.innerHTML = html;
-                            } else {
-                                resultsContainer.innerHTML = `<p class="text-teletalk-red font-bold p-4 bg-red-50 border border-red-200 rounded">${data.message}</p>`;
-                            }
+                                    </div>
+                                `;
+                            });
+                            html += `</div></div>`;
+                            resultsContainer.innerHTML = html;
+                        } 
+                        else {
+                            resultsContainer.innerHTML = `
+                                <div class="p-8 bg-red-50 border border-red-200 rounded-xl text-red-700 text-center shadow-inner">
+                                    <svg class="h-16 w-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                    <p class="font-bold text-2xl mb-2">Audit Entry Not Found</p>
+                                    <p class="text-gray-600 text-lg">"Tracking ID: <span class="text-red-600 font-mono font-bold px-2 py-1 bg-red-100 rounded">'${query}'</span> does not exist in the organizational Dak database."</p>
+                                </div>
+                            `;
+                        }
 
-                            if (typeof gsap !== 'undefined') {
-                                gsap.fromTo(resultsContainer, 
-                                    { y: -20, opacity: 0 }, 
-                                    { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
-                                );
-                            }
-                        });
-                }
+                        if (typeof gsap !== 'undefined') {
+                            gsap.fromTo(resultsContainerWrapper, 
+                                { y: -20, opacity: 0, display: 'block' }, 
+                                { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+                            );
+                        }
+                    })
+                    .catch(err => {
+                        resultsContainer.innerHTML = `<div class="p-4 bg-red-100 text-red-700 rounded">Network error. Please try again later.</div>`;
+                    });
             }
+
+            window.triggerSearch = triggerSearch;
         });
     </script>
 </x-app-layout>

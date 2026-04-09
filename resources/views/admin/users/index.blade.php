@@ -10,6 +10,12 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        @endif
+
         <div class="bg-white shadow rounded-lg p-6 overflow-x-auto">
             <table class="w-full text-left border-collapse min-w-[800px]">
                 <thead>
@@ -55,6 +61,16 @@
                                 </form>
                                 @else
                                 <span class="bg-gray-100 text-green-700 px-3 py-2 rounded font-bold">Approved</span>
+                                @endif
+
+                                @if(auth()->id() !== $user->id)
+                                <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-800 transition font-bold" title="Delete User">
+                                        Delete
+                                    </button>
+                                </form>
                                 @endif
                             </td>
                     </tr>

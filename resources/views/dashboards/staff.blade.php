@@ -5,7 +5,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12 max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-6">
+    <div class="py-12 max-w-[95%] mx-auto px-4 grid md:grid-cols-3 gap-6">
         <div class="bg-white shadow rounded-lg p-6 border-t-4 border-teletalk-green">
             <h3 class="font-bold text-lg mb-4 text-gray-800">Initiate New Dak</h3>
             
@@ -56,17 +56,83 @@
             </form>
         </div>
 
-        <div class="md:col-span-2 bg-white shadow rounded-lg p-6">
-            <h3 class="font-bold text-lg mb-4 text-gray-800">My File Entries (Status)</h3>
-            <table class="w-full text-left border-collapse">
-                <thead><tr class="bg-gray-100 text-gray-600 border-b"><th>Tracking ID</th><th>Subject</th><th>Current Location</th><th>Status & Actions</th></tr></thead>
-                <tbody>
-                    @foreach($myEntries as $file)
+        <div class="md:col-span-2 bg-white shadow rounded-lg p-6 overflow-x-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-gray-800">My File Entries (Status)</h3>
+            </div>
+            
+            <form method="GET" action="{{ route('dashboard') }}" class="mb-6 w-full relative" x-data="{ showFilters: false }">
+                <div class="flex w-full items-center space-x-3">
+                    
+                    <div class="flex-1 flex items-center w-full bg-white border border-gray-300 rounded-xl shadow-sm focus-within:border-teletalk-green focus-within:ring focus-within:ring-teletalk-green focus-within:ring-opacity-50 transition text-lg overflow-hidden">
+                        
+                        <!-- Left Search Icon -->
+                        <div class="pl-4 pr-3 text-gray-400 shrink-0 flex items-center justify-center">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        
+                        <!-- Main Input -->
+                        <input type="text" id="staff-search" name="tracking_id" value="{{ request('tracking_id') }}" placeholder="Search files by Tracking ID..." class="flex-1 block w-full py-4 px-2 bg-transparent border-none border-transparent focus:border-transparent focus:ring-0 shadow-none outline-none">
+                        
+                        <!-- Scanner Button -->
+                        <button type="button" onclick="startCameraFor('staff-search')" class="scanner-btn-black w-12 h-12 rounded-xl shrink-0 border-none outline-none mx-2 shadow-md" title="Open QR Scanner">
+                            <svg viewBox="0 0 24 24" class="h-6 w-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M 4 8 V 4 h 4" />
+                                <path d="M 16 4 h 4 v 4" />
+                                <path d="M 4 16 v 4 h 4" />
+                                <path d="M 16 20 h 4 v -4" />
+                                <line x1="5" y1="12" x2="19" y2="12" class="animate-scanner-line" stroke="white" stroke-width="3" />
+                            </svg>
+                        </button>
+                        
+                        <!-- Right Filter Toggle (Replaces ⌘ K) -->
+                        <div class="pr-3 flex items-center shrink-0">
+                            <button type="button" @click="showFilters = !showFilters" class="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition focus:outline-none flex items-center justify-center" title="Advanced Filters">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                            </button>
+                        </div>
+
+                    </div>
+                    
+                    <!-- Search Button -->
+                    <button type="submit" class="bg-teletalk-green text-white px-8 py-4 rounded-xl hover:bg-green-800 transition font-bold text-lg shrink-0 shadow-sm">
+                        Search
+                    </button>
+
+                    @if(request()->hasAny(['tracking_id', 'date', 'start_time', 'end_time']))
+                        <a href="{{ route('dashboard') }}" class="bg-red-50 text-red-600 px-6 py-4 rounded-xl border border-red-200 hover:bg-red-100 transition font-bold shrink-0 text-center shadow-sm" title="Clear Filters">
+                            Clear
+                        </a>
+                    @endif
+                </div>
+
+                <!-- Dropdown Filters (Alpine) -->
+                <div x-show="showFilters" x-transition style="display: none;" class="mt-2 bg-white p-5 rounded-lg border-2 border-gray-100 shadow-xl relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Date</label>
+                        <input type="date" name="date" value="{{ request('date') }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-teletalk-green focus:ring focus:ring-teletalk-green">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Start Time</label>
+                        <input type="time" name="start_time" value="{{ request('start_time') }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-teletalk-green focus:ring focus:ring-teletalk-green">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">End Time</label>
+                        <input type="time" name="end_time" value="{{ request('end_time') }}" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-teletalk-green focus:ring focus:ring-teletalk-green">
+                    </div>
+                </div>
+            </form>
+
+            <table class="w-full text-left border-collapse min-w-[600px]">
+                <thead><tr class="bg-gray-100 text-gray-600 border-b text-sm"><th class="p-2">Tracking ID</th><th class="p-2">Date & Time</th><th class="p-2">Subject</th><th class="p-2">Location</th><th class="p-2">Status & Actions</th></tr></thead>
+                <tbody class="text-sm">
+                    @forelse($myEntries as $file)
                     <tr class="border-b">
-                        <td class="p-2 font-mono text-teletalk-green">{{ $file->tracking_id }}</td>
-                        <td class="p-2">{{ $file->subject }}</td>
-                        <td class="p-2">{{ $file->currentDepartment->name }}</td>
-                        <td class="p-2">
+                        <td class="p-2 font-mono text-teletalk-green whitespace-nowrap">{{ $file->tracking_id }}</td>
+                        <td class="p-2 text-gray-500 whitespace-nowrap">{{ $file->created_at->format('M d, Y h:i A') }}</td>
+                        <td class="p-2 whitespace-nowrap">{{ $file->subject }}</td>
+                        <td class="p-2 whitespace-nowrap">{{ $file->currentDepartment->name }}</td>
+                        <td class="p-2 whitespace-nowrap">
                             <span class="px-2 py-1 text-xs rounded {{ $file->status == 'Completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                 {{ $file->status }}
                             </span>
@@ -75,7 +141,19 @@
                             </button>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="5" class="p-12 text-center">
+                            <div class="bg-gray-50 rounded-xl p-8 border-2 border-dashed border-gray-200 inline-block">
+                                <svg class="h-12 w-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <p class="text-gray-500 font-bold uppercase tracking-widest text-sm">No Matching Entries Found</p>
+                                <p class="text-gray-400 text-xs mt-1 italic">Try adjusting your filters or check the Tracking ID.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -126,54 +204,4 @@
         }
     </script>
 
-    <div id="reader-container" class="hidden fixed inset-0 z-50 bg-black bg-opacity-90 flex flex-col items-center justify-center p-4">
-        <div id="reader" class="w-full max-w-md bg-white rounded-lg overflow-hidden"></div>
-        <button id="stop-scan" type="button" class="mt-6 bg-red-600 text-white px-8 py-2 rounded-full font-bold">Close Scanner</button>
-    </div>
-
-    <script>
-        let html5QrCode;
-
-        document.getElementById('start-scan').addEventListener('click', function() {
-            // স্ক্যানার কন্টেইনার দেখানো
-            document.getElementById('reader-container').classList.remove('hidden');
-            
-            html5QrCode = new Html5Qrcode("reader");
-            
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-
-            // ক্যামেরা স্টার্ট করা
-            html5QrCode.start(
-                { facingMode: "environment" }, // পেছনের ক্যামেরা ব্যবহার করবে
-                config,
-                (decodedText, decodedResult) => {
-                    // স্ক্যান সফল হলে যা হবে:
-                    document.getElementById('omni-search').value = decodedText; // সার্চ বক্সে কোড বসানো
-                    stopScanner(); // ক্যামেরা বন্ধ করা
-                    
-                    // অটোমেটিক সার্চ ট্রিগার করা (Enter কী প্রেস করার মতো)
-                    const event = new KeyboardEvent('keypress', { key: 'Enter' });
-                    document.getElementById('omni-search').dispatchEvent(event);
-                },
-                (errorMessage) => {
-                    // স্ক্যানিং চলাকালীন এরর (সাধারণত ইগনোর করা হয়)
-                }
-            ).catch((err) => {
-                alert("Camera permission denied or not found!");
-                stopScanner();
-            });
-        });
-
-        document.getElementById('stop-scan').addEventListener('click', stopScanner);
-
-        function stopScanner() {
-            if (html5QrCode) {
-                html5QrCode.stop().then(() => {
-                    document.getElementById('reader-container').classList.add('hidden');
-                }).catch((err) => console.log(err));
-            } else {
-                document.getElementById('reader-container').classList.add('hidden');
-            }
-        }
-    </script>
 </x-app-layout>

@@ -1,22 +1,24 @@
 <nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
+    <div class="max-w-[95%] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-20 relative">
+            <div class="flex items-center flex-1 sm:flex-none">
+                <!-- Left: Teletalk Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                    <a href="{{ route('dashboard') }}" class="relative z-10">
+                        <img src="{{ asset('images/teletalk-logo.png') }}" class="h-14 block w-auto" alt="Teletalk Logo">
                     </a>
                 </div>
+            </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+            <!-- Center: Portal Title -->
+            @isset($header)
+            <div class="hidden sm:flex absolute inset-0 pointer-events-none justify-center items-center">
+                <div class="font-bold text-xl text-teletalk-green pointer-events-auto bg-white px-4">
+                    {{ $header }}
                 </div>
             </div>
+            @endisset
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">

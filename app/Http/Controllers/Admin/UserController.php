@@ -25,4 +25,13 @@ class UserController extends Controller
         $user->update(['is_approved' => true]);
         return back()->with('success', 'User Approved!');
     }
+
+    public function destroy(User $user) {
+        if (auth()->id() === $user->id) {
+            return back()->with('error', 'You cannot delete your own account.');
+        }
+
+        $user->delete();
+        return back()->with('success', 'User deleted successfully.');
+    }
 }

@@ -56,5 +56,16 @@ class DatabaseSeeder extends Seeder
                 'is_approved' => true, // <-- এই লাইনটি যুক্ত করুন
             ]
         );
+        // 4. Viewer (Legal)
+        User::firstOrCreate(
+            ['email' => 'viewer@teletalk.com.bd'],
+            [
+                'name' => 'General Viewer',
+                'password' => Hash::make('password123'),
+                'role' => 'viewer',
+                'department_id' => $legalDepartment->id,
+                'is_approved' => true,
+            ]
+        );
     }
 }
