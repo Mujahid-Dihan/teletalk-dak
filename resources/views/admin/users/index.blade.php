@@ -37,6 +37,7 @@
                             <td class="p-3">{{ $user->email }}</td>
                             <td class="p-3">
                                 <select name="role" class="rounded-md border-gray-300 shadow-sm focus:border-teletalk-green focus:ring focus:ring-teletalk-green focus:ring-opacity-50">
+                                    <option value="viewer" {{ in_array($user->role, ['Viewer', 'viewer']) ? 'selected' : '' }}>Viewer</option>
                                     <option value="staff" {{ in_array($user->role, ['Staff', 'staff']) ? 'selected' : '' }}>Staff</option>
                                     <option value="admin" {{ in_array($user->role, ['Admin', 'admin']) ? 'selected' : '' }}>Admin</option>
                                     <option value="super_admin" {{ in_array($user->role, ['Super Admin', 'super_admin']) ? 'selected' : '' }}>Super Admin</option>

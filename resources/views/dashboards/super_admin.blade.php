@@ -9,35 +9,68 @@
                 <h3 class="text-gray-500 font-bold uppercase">Total Active Files</h3>
                 <p class="text-4xl font-bold text-gray-900 mt-2">{{ $allActiveFiles }}</p>
             </div>
+
+            <div
+                class="md:col-span-2 bg-white shadow rounded-lg p-6 flex flex-col sm:flex-row items-center justify-between text-center sm:text-left border-t-4 border-gray-800">
+                <div class="mb-4 sm:mb-0">
+                    <h3 class="font-bold text-xl text-gray-800">System Management</h3>
+                </div>
+                <div class="flex flex-wrap justify-center sm:justify-end gap-4 mt-4 sm:mt-0">
+                    <a href="{{ route('admin.users.index') }}"
+                        class="relative bg-gray-800 text-white px-8 py-3 rounded-lg hover:bg-black transition-all transform hover:-translate-y-0.5 active:scale-95 active:translate-y-0 font-bold shadow-lg select-none">
+                        Manage Users
+                        @if(isset($pendingUsersCount) && $pendingUsersCount > 0)
+                            <span
+                                class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-white animate-bounce">
+                                {{ $pendingUsersCount }}
+                            </span>
+                        @endif
+                    </a>
+                    <a href="{{ route('admin.reports.index') }}"
+                        class="block bg-teletalk-green text-white px-8 py-3 rounded-lg hover:bg-green-800 transition-all transform hover:-translate-y-0.5 active:scale-95 active:translate-y-0 font-bold shadow-lg whitespace-nowrap select-none">
+                        View & Export Reports
+                    </a>
+                </div>
             </div>
+        </div>
 
         <!-- Omni-Search global tracker for Super Admin -->
         <div class="bg-white shadow rounded-lg p-6 border-l-4 border-teletalk-green">
             <h3 class="font-bold text-lg mb-4 text-gray-800">Global Tracker</h3>
             <div class="flex items-center space-x-2">
-                <input type="text" id="omni-search" placeholder="Enter Global Tracking ID to investigate file routing..." class="w-full text-xl p-4 border-2 border-gray-300 rounded focus:border-teletalk-green">
-                <button type="button" onclick="startCameraFor('omni-search')" class="scanner-btn-black w-20 h-20 rounded-[1.5rem] shadow-xl shrink-0 border-none outline-none group" title="Open QR Scanner">
-                    <svg viewBox="0 0 24 24" class="h-10 w-10 text-white" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <input type="text" id="omni-search"
+                    placeholder="Enter Global Tracking ID to investigate file routing..."
+                    class="w-full text-xl p-4 border-2 border-gray-300 rounded focus:border-teletalk-green">
+                <button type="button" onclick="startCameraFor('omni-search')"
+                    class="scanner-btn-black w-20 h-20 rounded-[1.5rem] shadow-xl shrink-0 border-none outline-none group"
+                    title="Open QR Scanner">
+                    <svg viewBox="0 0 24 24" class="h-10 w-10 text-white" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M 4 8 V 4 h 4" />
                         <path d="M 16 4 h 4 v 4" />
                         <path d="M 4 16 v 4 h 4" />
                         <path d="M 16 20 h 4 v -4" />
-                        <line x1="5" y1="12" x2="19" y2="12" class="animate-scanner-line" stroke="white" stroke-width="3" />
+                        <line x1="5" y1="12" x2="19" y2="12" class="animate-scanner-line" stroke="white"
+                            stroke-width="3" />
                     </svg>
                 </button>
-                <button type="button" onclick="triggerSearch(document.getElementById('omni-search').value.trim())" class="bg-teletalk-green text-white font-bold px-8 h-20 rounded-[1.5rem] hover:bg-green-800 transition shadow-xl text-xl shrink-0 border-none outline-none focus:ring-4 focus:ring-green-300">
+                <button type="button" onclick="triggerSearch(document.getElementById('omni-search').value.trim())"
+                    class="bg-teletalk-green text-white font-bold px-8 h-20 rounded-[1.5rem] hover:bg-green-800 transition shadow-xl text-xl shrink-0 border-none outline-none focus:ring-4 focus:ring-green-300">
                     Search
                 </button>
             </div>
-            
-            <div id="search-results-container" class="hidden mt-4 bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-inner">
+
+            <div id="search-results-container"
+                class="hidden mt-4 bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-inner">
                 <div id="search-results"></div>
-                
+
                 <div class="flex justify-end mt-6 border-t border-gray-200 pt-4">
-                    <button onclick="const container = document.getElementById('search-results-container'); container.style.display = 'none'; container.classList.add('hidden')" 
-                            class="flex items-center px-4 py-2 bg-white border border-red-200 text-red-600 font-medium rounded hover:bg-red-50 transition shadow-sm">
+                    <button
+                        onclick="const container = document.getElementById('search-results-container'); container.style.display = 'none'; container.classList.add('hidden')"
+                        class="flex items-center px-4 py-2 bg-white border border-red-200 text-red-600 font-medium rounded hover:bg-red-50 transition shadow-sm">
                         <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                         Close Results
                     </button>
@@ -46,60 +79,45 @@
         </div>
 
         <div class="bg-white shadow rounded-lg p-6">
-             <h3 class="font-bold text-lg mb-4 text-gray-800">Live Organization Workload</h3>
-             
-             <!-- Workload Grid (Vertical) -->
-             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                 @foreach($departments as $dept)
-                     @php
-                         $count = isset($departmentWorkloads[$dept->id]) ? $departmentWorkloads[$dept->id]->total : 0;
-                         $bgClass = 'bg-white';
-                         $textClass = 'text-gray-900';
-                         if ($count > 10) {
-                             $bgClass = 'bg-red-50 border-teletalk-red';
-                             $textClass = 'text-teletalk-red';
-                         } elseif ($count > 0) {
-                             $bgClass = 'bg-green-50 border-teletalk-green';
-                             $textClass = 'text-teletalk-green';
-                         }
+            <h3 class="font-bold text-lg mb-4 text-gray-800">Live Organization Workload</h3>
+
+            <!-- Workload Grid (Vertical) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                @foreach($departments as $dept)
+                    @php
+                        $count = isset($departmentWorkloads[$dept->id]) ? $departmentWorkloads[$dept->id]->total : 0;
+                        $bgClass = 'bg-white';
+                        $textClass = 'text-gray-900';
+                        if ($count > 10) {
+                            $bgClass = 'bg-red-50 border-teletalk-red';
+                            $textClass = 'text-teletalk-red';
+                        } elseif ($count > 0) {
+                            $bgClass = 'bg-green-50 border-teletalk-green';
+                            $textClass = 'text-teletalk-green';
+                        }
                      @endphp
-                     <div class="border rounded-lg p-4 shadow-sm {{ $bgClass }} transition hover:shadow-md">
-                         <h4 class="text-sm font-medium text-gray-600 truncate">{{ $dept->name }}</h4>
-                         <div class="mt-2 flex items-baseline">
-                             <span class="text-3xl font-bold {{ $textClass }}">{{ $count }}</span>
-                             <span class="ml-2 text-sm text-gray-500">active files</span>
-                         </div>
-                     </div>
-                 @endforeach
-             </div>
+                    <div class="border rounded-lg p-4 shadow-sm {{ $bgClass }} transition hover:shadow-md">
+                        <h4 class="text-sm font-medium text-gray-600 truncate">{{ $dept->name }}</h4>
+                        <div class="mt-2 flex items-baseline">
+                            <span class="text-3xl font-bold {{ $textClass }}">{{ $count }}</span>
+                            <span class="ml-2 text-sm text-gray-500">active files</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
-        
-        <div class="bg-white shadow rounded-lg p-8 flex flex-col items-center text-center">
-             <h3 class="font-bold text-2xl mb-6 text-gray-800">System Management</h3>
-             <div class="flex flex-wrap justify-center gap-4">
-                 <a href="{{ route('admin.users.index') }}" class="relative bg-gray-800 text-white px-8 py-3 rounded hover:bg-black transition font-bold shadow-lg">
-                     Manage Users
-                     @if(isset($pendingUsersCount) && $pendingUsersCount > 0)
-                        <span class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full border-2 border-white animate-bounce">
-                            {{ $pendingUsersCount }}
-                        </span>
-                     @endif
-                 </a>
-                 <a href="{{ route('admin.reports.index') }}" class="bg-teletalk-green text-white px-8 py-3 rounded hover:bg-green-800 transition font-bold shadow-lg">
-                     View & Export Reports
-                 </a>
-             </div>
-        </div>
+
+
     </div>
-    
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('omni-search');
             const resultsContainerWrapper = document.getElementById('search-results-container');
             const resultsContainer = document.getElementById('search-results');
 
-            if(searchInput && resultsContainerWrapper) {
-                searchInput.addEventListener('keypress', function(e) {
+            if (searchInput && resultsContainerWrapper) {
+                searchInput.addEventListener('keypress', function (e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         let query = searchInput.value.trim();
@@ -109,7 +127,7 @@
             }
 
             function triggerSearch(query) {
-                if(!query || query.length === 0) return;
+                if (!query || query.length === 0) return;
 
                 resultsContainerWrapper.classList.remove('hidden');
                 resultsContainerWrapper.style.display = 'block';
@@ -123,7 +141,7 @@
                 fetch(`/dak/search?tracking_id=${query}`)
                     .then(response => response.json())
                     .then(data => {
-                        if(data.success) {
+                        if (data.success) {
                             let currLoc = data.file.current_department ? data.file.current_department.name : 'Unknown';
                             let html = `
                                 <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
@@ -144,7 +162,7 @@
                                     <h5 class="font-bold text-gray-700 mb-4 uppercase text-sm tracking-widest text-nowrap">Global Audit Trail</h5>
                                     <div class="space-y-4 border-l-2 border-teletalk-green ml-3 relative">
                             `;
-                            
+
                             data.file.movements.forEach((movement) => {
                                 let date = new Date(movement.created_at).toLocaleString();
                                 let destination = movement.to_department ? movement.to_department.name : 'System / Archival';
@@ -166,7 +184,7 @@
                             });
                             html += `</div></div>`;
                             resultsContainer.innerHTML = html;
-                        } 
+                        }
                         else {
                             resultsContainer.innerHTML = `
                                 <div class="p-8 bg-red-50 border border-red-200 rounded-xl text-red-700 text-center shadow-inner">
@@ -180,8 +198,8 @@
                         }
 
                         if (typeof gsap !== 'undefined') {
-                            gsap.fromTo(resultsContainerWrapper, 
-                                { y: -20, opacity: 0, display: 'block' }, 
+                            gsap.fromTo(resultsContainerWrapper,
+                                { y: -20, opacity: 0, display: 'block' },
                                 { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
                             );
                         }

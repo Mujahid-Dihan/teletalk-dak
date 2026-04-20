@@ -40,8 +40,8 @@
             }
         </style>
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
+    <body class="font-sans antialiased selection:bg-teletalk-green selection:text-white">
+        <div class="min-h-screen bg-gradient-to-br from-white via-green-50 to-green-100">
 
             @include('layouts.navigation')
 

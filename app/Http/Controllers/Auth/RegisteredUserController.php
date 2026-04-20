@@ -49,7 +49,7 @@ class RegisteredUserController extends Controller
             ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'department_id' => ['required', 'exists:departments,id'], // রেজিস্ট্রেশনের সময় ডিপার্টমেন্ট সিলেক্ট করতে হবে
-            'role' => ['required', 'in:staff,admin'], // সুপার অ্যাডমিন ড্যাশবোর্ড থেকে তৈরি হবে, সাধারণ ইউজাররা স্টাফ বা অ্যাডমিন হিসেবে জয়েন করবে
+            'role' => ['required', 'in:staff,admin,viewer'], // সুপার অ্যাডমিন ড্যাশবোর্ড থেকে তৈরি হবে, সাধারণ ইউজাররা স্টাফ বা অ্যাডমিন বা ভিউয়ার হিসেবে জয়েন করবে
         ]);
 
         $user = User::create([

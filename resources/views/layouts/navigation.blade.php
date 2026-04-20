@@ -5,8 +5,8 @@
             <div class="flex items-center flex-1 sm:flex-none">
                 <!-- Left: Teletalk Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="relative z-10">
-                        <img src="{{ asset('images/teletalk-logo.png') }}" class="h-14 block w-auto" alt="Teletalk Logo">
+                    <a href="{{ route('dashboard') }}" title="Return to Home Dashboard" class="relative z-50 block transition transform hover:scale-105 hover:opacity-80 active:scale-95 cursor-pointer">
+                        <img src="{{ asset('images/teletalk-logo.png') }}" class="h-14 block w-auto drop-shadow-sm" alt="Teletalk Logo Home">
                     </a>
                 </div>
             </div>
