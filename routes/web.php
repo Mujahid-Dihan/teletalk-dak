@@ -27,6 +27,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::post('/dak/{id}/forward', [DakController::class, 'forward'])->name('dak.forward');
 
+    // Uploading Scanned PDF
+    Route::post('/dak/{id}/upload-pdf', [DakController::class, 'uploadPdf'])->name('dak.upload_pdf');
+
     // Admin Routes
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users.index');
     Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('admin.users.update');

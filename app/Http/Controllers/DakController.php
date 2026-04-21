@@ -194,4 +194,38 @@ class DakController extends Controller
 
         return back()->with('success', 'File forwarded successfully.');
     }
+
+    // Upload a scanned PDF for the file
+    public function uploadPdf(Request $request, $id)
+    {
+        $request->validate([
+            'pdf_file' => 'required|file|mimes:pdf|max:10240', // Max 10MB
+        ]);
+
+        $file = DakFile::findOrFail($id);
+
+        // Security check: The user must be the admin of the current department to attach files, or at least in the department.
+        abort_if($file->current_department_id !== auth()->user()->department_id, 403, 'Unauthorized. File is not in your department.');
+
+        if ($request->hasFile('pdf_file')) {
+            $path = $request->file('pdf_file')->store('scanned_pdfs', 'public');
+            
+            $file->update([
+                'scanned_pdf_path' => $path
+            ]);
+
+            FileMovement::create([
+                'dak_file_id' => $file->id,
+                'user_id' => auth()->id(),
+                'from_department_id' => $file->current_department_id,
+                'to_department_id' => $file->current_department_id,
+                'action' => 'Document Scanned',
+                'remarks' => 'A PDF scan was attached to this record.'
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'PDF scanned and uploaded successfully.', 'path' => $path]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Failed to upload PDF.'], 400);
+    }
 }

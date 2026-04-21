@@ -17,6 +17,7 @@ class DakFile extends Model
         'origin_department_id',
         'current_department_id',
         'physical_location',
+        'scanned_pdf_path',
         'user_id'
     ];
 

@@ -30,6 +30,7 @@
                             <th class="p-3 border">Action By</th>
                             <th class="p-3 border">Movement</th>
                             <th class="p-3 border">Action / Status</th>
+                            <th class="p-3 border">Scanned PDF</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -50,10 +51,21 @@
                                 @endphp
                                 <span class="px-2 py-1 text-xs rounded font-bold {{ $badgeColor }}">{{ $displayStatus }}</span>
                             </td>
+                            <td class="p-3 border text-center">
+                                @if($log->dakFile->scanned_pdf_path)
+                                    <a href="{{ asset('storage/' . $log->dakFile->scanned_pdf_path) }}" target="_blank"
+                                       style="background: linear-gradient(135deg, #0ea5e9, #6366f1);"
+                                       class="inline-flex items-center gap-1 text-white text-xs font-bold px-3 py-1 rounded shadow hover:opacity-90 transition whitespace-nowrap">
+                                        👁 View PDF
+                                    </a>
+                                @else
+                                    <span class="text-gray-400 text-xs">—</span>
+                                @endif
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="5" class="p-6 text-center text-gray-500">No records found for this period.</td>
+                            <td colspan="6" class="p-6 text-center text-gray-500">No records found for this period.</td>
                         </tr>
                         @endforelse
                     </tbody>
