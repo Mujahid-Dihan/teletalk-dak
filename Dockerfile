@@ -16,7 +16,7 @@ WORKDIR /app
 COPY . /app
 
 # Install PHP and NPM dependencies
-RUN composer install --optimize-autoloader --no-dev
+RUN composer install --optimize-autoloader --no-dev --ignore-platform-req=ext-zip
 RUN npm install && npm run build
 
 # Expose port and start Laravel server
