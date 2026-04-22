@@ -1,8 +1,8 @@
 FROM php:8.4-cli
 
-# Install required system packages & PHP extensions (including GD and PostgreSQL)
-RUN apt-get update -y && apt-get install -y libpq-dev libpng-dev unzip git \
-    && docker-php-ext-install pdo pdo_pgsql gd
+# Install required system packages & PHP extensions (including GD, PostgreSQL, and ZIP)
+RUN apt-get update -y && apt-get install -y libpq-dev libpng-dev libzip-dev unzip zip git \
+    && docker-php-ext-install pdo pdo_pgsql gd zip
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
